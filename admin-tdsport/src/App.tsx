@@ -6,6 +6,8 @@ import Torneo from './pages/Torneo';
 import Confederaciones from './pages/Confederaciones';
 import Paises from './pages/Paises';
 import ConfiguracionTorneos from './pages/ConfiguracionTorneos';
+import Equipos from './pages/Equipos';
+import GestionPartidos from './pages/GestionPartidos';
 
 export default function App() {
   return (
@@ -22,11 +24,14 @@ export default function App() {
           <Route path="/torneos/confederaciones" element={<Confederaciones />} />
           <Route path="/torneos/paises" element={<Paises />} />
           <Route path="/torneos/configuracion" element={<ConfiguracionTorneos />} />
-          <Route path="/partidos" element={<div>Gestión de Partidos (En construcción)</div>} />
+
+          <Route path="/torneos/equipos" element={<Equipos />} />
+
           <Route path="/quinielas-activas" element={<div>Quinielas Activas (En construcción)</div>} />
           <Route path="/calendario" element={<div>Calendario (En construcción)</div>} />
           <Route path="/carga-resultados" element={<div>Resultados (En construcción)</div>} />
           <Route path="/configuraciones" element={<div>Configuraciones (En construcción)</div>} />
+          <Route path="/partidos" element={<GestionPartidos />} />
         </Route>
       </Routes>
     </BrowserRouter>
