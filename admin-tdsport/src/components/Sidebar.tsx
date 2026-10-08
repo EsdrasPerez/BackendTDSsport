@@ -14,8 +14,14 @@ export default function Sidebar() {
 
     return (
         <aside className={`sidebar-container ${isCollapsed ? 'collapsed' : 'expanded'}`}>
-            <div className="sidebar-header">
-                {!isCollapsed && <span className="sidebar-title">TDSPORT</span>}
+            <div className="sidebar-header" style={{ padding: '16px 24px' }}>
+                {!isCollapsed && (
+                    <img 
+                        src="/TDLOGOAZUL.png" 
+                        alt="TDSPORT Logo" 
+                        style={{ height: '40px', objectFit: 'contain' }} 
+                    />
+                )}
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
                     className="sidebar-toggle-btn"
@@ -34,7 +40,7 @@ export default function Sidebar() {
                         <div
                             className="sidebar-dropdown-toggle d-flex justify-content-between align-items-center"
                             onClick={() => setIsTorneosOpen(!isTorneosOpen)}
-                            style={{ cursor: 'pointer', padding: '12px 20px', color: '#020202ff' }}
+                            style={{ cursor: 'pointer' }}
                         >
                             <div className="d-flex align-items-center gap-2">
                                 {!isCollapsed && <span>Partidos</span>}
@@ -47,10 +53,10 @@ export default function Sidebar() {
                         </div>
 
                         {isTorneosOpen && !isCollapsed && (
-                            <ul className="sidebar-submenu" style={{ listStyle: 'none', paddingLeft: '40px', margin: 0 }}>
-                                <li style={{ padding: '8px 0' }}><Link to="/partidos?torneo_id=t9-u10" style={{ color: '#000000ff', textDecoration: 'none' }}> Gestionar Partidos</Link></li>
-                                <li style={{ padding: '8px 0' }}><Link to="/calendario-partidos" style={{ color: '#000000ff', textDecoration: 'none' }}> Calendario Partidos</Link></li>
-                                <li style={{ padding: '8px 0' }}><Link to="/carga-resultados" style={{ color: '#000000ff', textDecoration: 'none' }}> Carga de Resultados</Link></li>
+                            <ul className="sidebar-submenu" style={{ listStyle: 'none', paddingLeft: '20px', margin: 0 }}>
+                                <li><Link to="/partidos?torneo_id=t9-u10">Gestionar Partidos</Link></li>
+                                <li><Link to="/calendario-partidos">Calendario Partidos</Link></li>
+                                <li><Link to="/carga-resultados">Carga de Resultados</Link></li>
                             </ul>
                         )}
                     </li>
@@ -60,7 +66,7 @@ export default function Sidebar() {
                         <div
                             className="sidebar-dropdown-toggle d-flex justify-content-between align-items-center"
                             onClick={() => setIsTorneosOpen(!isTorneosOpen)}
-                            style={{ cursor: 'pointer', padding: '12px 20px', color: '#020202ff' }}
+                            style={{ cursor: 'pointer' }}
                         >
                             <div className="d-flex align-items-center gap-2">
                                 {!isCollapsed && <span>Competiciones</span>}
@@ -73,12 +79,12 @@ export default function Sidebar() {
                         </div>
 
                         {isTorneosOpen && !isCollapsed && (
-                            <ul className="sidebar-submenu" style={{ listStyle: 'none', paddingLeft: '40px', margin: 0 }}>
-                                <li style={{ padding: '8px 0' }}><Link to="/torneos" style={{ color: '#000000ff', textDecoration: 'none' }}> Gestión de Torneos</Link></li>
-                                <li style={{ padding: '8px 0' }}><Link to="/torneos/equipos" style={{ color: '#000000ff', textDecoration: 'none' }}>Equipos</Link></li>
-                                <li style={{ padding: '8px 0' }}><Link to="/torneos/confederaciones" style={{ color: '#000000ff', textDecoration: 'none' }}> Confederaciones</Link></li>
-                                <li style={{ padding: '8px 0' }}><Link to="/torneos/paises" style={{ color: '#000000ff', textDecoration: 'none' }}> Países</Link></li>
-                                <li style={{ padding: '8px 0' }}><Link to="/torneos/configuracion" style={{ color: '#000000ff', textDecoration: 'none' }}> Configuración</Link></li>
+                            <ul className="sidebar-submenu" style={{ listStyle: 'none', paddingLeft: '20px', margin: 0 }}>
+                                <li><Link to="/torneos">Gestión de Torneos</Link></li>
+                                <li><Link to="/torneos/equipos">Equipos</Link></li>
+                                <li><Link to="/torneos/confederaciones">Confederaciones</Link></li>
+                                <li><Link to="/torneos/paises">Países</Link></li>
+                                <li><Link to="/torneos/configuracion">Configuración</Link></li>
                             </ul>
                         )}
                     </li>

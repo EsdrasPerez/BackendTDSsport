@@ -81,9 +81,8 @@ export default function DashboardTorneos() {
 
   return (
     <div className="min-vh-100 bg-light">
-      {/* Barra de Navegación Superior */}
-      <nav className="navbar navbar-dark bg-dark px-4 shadow-sm d-flex justify-content-between align-items-center">
-        <span className="navbar-brand mb-0 h1">TDSPORT Panel de Administración</span>
+      <nav className="navbar px-4 shadow-sm d-flex justify-content-center align-items-center py-3" style={{ backgroundColor: '#ffffff', borderBottom: '1px solid #e0e5ec' }}>
+        <span className="navbar-brand mb-0 fw-bold text-dark" style={{ fontSize: '1.75rem', letterSpacing: '0.5px' }}>TDSPORT Panel de Administración</span>
       </nav>
 
       <div className="container py-5">
@@ -120,7 +119,7 @@ export default function DashboardTorneos() {
 
         {/* Columna Derecha: Tabla de Torneos Optimizado */}
         <div className="col-12 col-md-8">
-          <div className="card shadow-sm h-100">
+          <div className="card shadow-sm h-100 bg-white">
             <div className="card-body">
               <h2 className="card-title h5 mb-3 text-dark">Torneos Activos e Histórico</h2>
 
