@@ -8,6 +8,8 @@ import Paises from './pages/Paises';
 import ConfiguracionTorneos from './pages/ConfiguracionTorneos';
 import Equipos from './pages/Equipos';
 import GestionPartidos from './pages/GestionPartidos';
+import CalendarioPartidos from './pages/CalendarioPartidos';
+import CargaResultados from './pages/CargaResultados';
 
 export default function App() {
   return (
@@ -28,8 +30,8 @@ export default function App() {
           <Route path="/torneos/equipos" element={<Equipos />} />
 
           <Route path="/quinielas-activas" element={<div>Quinielas Activas (En construcción)</div>} />
-          <Route path="/calendario" element={<div>Calendario (En construcción)</div>} />
-          <Route path="/carga-resultados" element={<div>Resultados (En construcción)</div>} />
+          <Route path="/calendario-partidos" element={<CalendarioPartidos />} />
+          <Route path="/carga-resultados" element={<CargaResultados />} />
           <Route path="/configuraciones" element={<div>Configuraciones (En construcción)</div>} />
           <Route path="/partidos" element={<GestionPartidos />} />
         </Route>
