@@ -20,6 +20,10 @@ interface Equipo {
     pais?: Pais | null;
 }
 
+interface EquipoDBResponse extends Omit<Equipo, 'pais'> {
+    pais?: Pais | Pais[] | null;
+}
+
 interface TorneoEquipo {
     torneo_id: string;
     equipo_id: string;
@@ -133,7 +137,7 @@ export default function Equipos() {
                 (dataRelaciones as TorneoEquipo[] | null) ?? [];
 
             const equiposProcesados: EquipoConTorneos[] = (
-                (dataEquipos as Equipo[]) ?? []
+                (dataEquipos as unknown as EquipoDBResponse[]) ?? []
             ).map((equipo) => {
                 const relacionesEquipo = relaciones.filter(
                     (relacion) => relacion.equipo_id === equipo.id
@@ -146,8 +150,13 @@ export default function Equipos() {
                         )
                     );
 
+                const paisNormalizado: Pais | null = Array.isArray(equipo.pais)
+                    ? (equipo.pais[0] ?? null)
+                    : (equipo.pais ?? null);
+
                 return {
                     ...equipo,
+                    pais: paisNormalizado,
                     torneos: torneosEquipo,
                 };
             });
