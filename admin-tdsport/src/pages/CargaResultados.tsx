@@ -1,7 +1,23 @@
-
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSearchParams, useLocation } from 'react-router-dom';
+import { useSearchParams, useLocation, Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+
+// MUI Icons
+import SportsScoreIcon from '@mui/icons-material/SportsScore';
+import StadiumIcon from '@mui/icons-material/Stadium';
+import ScheduleIcon from '@mui/icons-material/Schedule';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import SaveIcon from '@mui/icons-material/Save';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import LockIcon from '@mui/icons-material/Lock';
+import EditIcon from '@mui/icons-material/Edit';
+import CloseIcon from '@mui/icons-material/Close';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 interface Equipo {
     nombre: string;
@@ -295,116 +311,206 @@ export default function CargaResultados() {
             <img
                 src={equipo.escudo_url}
                 alt={`Escudo de ${equipo.nombre}`}
-                style={{ width: 48, height: 48, objectFit: 'contain' }}
+                style={{ width: 44, height: 44, objectFit: 'contain' }}
             />
         ) : (
             <div
-                className="rounded-circle bg-light d-flex align-items-center justify-content-center"
-                style={{ width: 48, height: 48, fontSize: 24 }}
+                className="rounded-circle d-flex align-items-center justify-content-center bg-light border text-muted shadow-sm"
+                style={{ width: 44, height: 44 }}
                 aria-label="Sin escudo"
             >
-                ⚽
+                <SportsSoccerIcon sx={{ fontSize: 24, color: '#6c757d' }} />
             </div>
         )
     );
 
     return (
         <div className="min-vh-100 bg-light">
-            <nav className="navbar navbar-dark bg-dark px-4 shadow-sm">
-                <span className="navbar-brand fw-bold">⚽ TDSPORT</span>
-                <span className="text-white">Carga de resultados</span>
-            </nav>
+            <div className="container-fluid py-4 px-3 px-md-4">
+                {/* HERO HEADER */}
+                <div className="tds-calendar-hero mb-4">
+                    <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                        <div className="d-flex align-items-center gap-3">
+                            <div
+                                className="rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                                style={{
+                                    width: 52,
+                                    height: 52,
+                                    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+                                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                                }}
+                            >
+                                <SportsScoreIcon sx={{ fontSize: 32, color: 'var(--tds-lime, #7cff4f)' }} />
+                            </div>
+                            <div>
+                                <h2 className="fw-bold mb-1 text-white">Carga de Resultados</h2>
+                                <p className="text-white-50 mb-0">
+                                    Registra marcadores en tiempo real y actualiza el estado de los encuentros.
+                                </p>
+                            </div>
+                        </div>
 
-            <main className="container-fluid py-4">
-                <div className="mb-4">
-                    <h2 className="fw-bold mb-1">Carga de resultados</h2>
-                    <p className="text-muted mb-0">
-                        Registra marcadores y actualiza el estado de los encuentros.
-                    </p>
+                        <div className="d-flex align-items-center gap-2 flex-wrap">
+                            <Link
+                                to="/partidos"
+                                className="btn btn-primary d-inline-flex align-items-center gap-2 px-3.5 py-2 shadow-sm text-decoration-none"
+                                style={{ borderRadius: '10px', fontWeight: 600 }}
+                            >
+                                <StadiumIcon sx={{ fontSize: 20 }} />
+                                <span>Gestión de Partidos</span>
+                            </Link>
+                        </div>
+                    </div>
                 </div>
 
                 {mensaje && (
                     <div
-                        className={`alert alert-${tipoMensaje} alert-dismissible`}
+                        className={`alert alert-${tipoMensaje} alert-dismissible d-flex align-items-center justify-content-between shadow-sm mb-4`}
                         role="alert"
+                        style={{ borderRadius: '12px' }}
                     >
-                        {mensaje}
+                        <div className="d-flex align-items-center gap-2">
+                            {tipoMensaje === 'success' ? (
+                                <CheckCircleIcon sx={{ fontSize: 22 }} />
+                            ) : (
+                                <LockIcon sx={{ fontSize: 22 }} />
+                            )}
+                            <div>{mensaje}</div>
+                        </div>
                         <button
                             type="button"
-                            className="btn-close"
+                            className="btn btn-sm btn-link text-decoration-none p-0 text-reset"
                             aria-label="Cerrar mensaje"
                             onClick={() => setMensaje('')}
-                        />
+                        >
+                            <CloseIcon sx={{ fontSize: 20 }} />
+                        </button>
                     </div>
                 )}
 
+                {/* STATS ROW */}
                 <div className="row g-3 mb-4">
-                    {[
-                        { titulo: 'Programados', cantidad: estadisticas.futuros, clase: 'primary' },
-                        { titulo: 'En juego', cantidad: estadisticas.enJuego, clase: 'warning' },
-                        { titulo: 'Finalizados', cantidad: estadisticas.finalizados, clase: 'success' },
-                    ].map((item) => (
-                        <div className="col-12 col-md-4" key={item.titulo}>
-                            <div className="card border-0 shadow-sm h-100">
-                                <div className="card-body d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div className="text-muted">{item.titulo}</div>
-                                        <div className="fs-2 fw-bold">{item.cantidad}</div>
-                                    </div>
-                                    <span className={`badge bg-${item.clase} fs-6`}>
-                                        {item.titulo === 'Programados' ? '📅' : item.titulo === 'En juego' ? '🔴' : '✓'}
-                                    </span>
+                    <div className="col-12 col-md-4">
+                        <div className="card border-0 shadow-sm h-100" style={{ borderRadius: '14px' }}>
+                            <div className="card-body d-flex justify-content-between align-items-center p-3">
+                                <div>
+                                    <div className="text-muted small fw-medium">Partidos Programados</div>
+                                    <div className="fs-2 fw-bold text-dark">{estadisticas.futuros}</div>
+                                </div>
+                                <div
+                                    className="rounded-circle d-flex align-items-center justify-content-center"
+                                    style={{ width: 48, height: 48, backgroundColor: 'rgba(13, 110, 253, 0.12)' }}
+                                >
+                                    <ScheduleIcon sx={{ fontSize: 26, color: '#0d6efd' }} />
                                 </div>
                             </div>
                         </div>
-                    ))}
+                    </div>
+
+                    <div className="col-12 col-md-4">
+                        <div className="card border-0 shadow-sm h-100" style={{ borderRadius: '14px' }}>
+                            <div className="card-body d-flex justify-content-between align-items-center p-3">
+                                <div>
+                                    <div className="text-muted small fw-medium">En Juego</div>
+                                    <div className="fs-2 fw-bold text-dark">{estadisticas.enJuego}</div>
+                                </div>
+                                <div
+                                    className="rounded-circle d-flex align-items-center justify-content-center"
+                                    style={{ width: 48, height: 48, backgroundColor: 'rgba(255, 193, 7, 0.18)' }}
+                                >
+                                    <FiberManualRecordIcon sx={{ fontSize: 24, color: '#ff9800' }} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="col-12 col-md-4">
+                        <div className="card border-0 shadow-sm h-100" style={{ borderRadius: '14px' }}>
+                            <div className="card-body d-flex justify-content-between align-items-center p-3">
+                                <div>
+                                    <div className="text-muted small fw-medium">Finalizados</div>
+                                    <div className="fs-2 fw-bold text-dark">{estadisticas.finalizados}</div>
+                                </div>
+                                <div
+                                    className="rounded-circle d-flex align-items-center justify-content-center"
+                                    style={{ width: 48, height: 48, backgroundColor: 'rgba(25, 135, 84, 0.12)' }}
+                                >
+                                    <CheckCircleIcon sx={{ fontSize: 26, color: '#198754' }} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="row g-4">
+                    {/* LISTA DE PARTIDOS */}
                     <div className="col-12 col-xl-7">
-                        <div className="card border-0 shadow-sm">
-                            <div className="card-header bg-white p-3">
-                                <h5 className="fw-bold mb-3">Partidos registrados</h5>
+                        <div className="card border-0 shadow-sm" style={{ borderRadius: '16px', overflow: 'hidden' }}>
+                            <div className="card-header bg-white p-3 border-bottom">
+                                <div className="d-flex align-items-center justify-content-between mb-3">
+                                    <h5 className="fw-bold mb-0 d-flex align-items-center gap-2">
+                                        <StadiumIcon sx={{ fontSize: 22, color: 'var(--tds-navy, #0f1e36)' }} />
+                                        <span>Partidos Registrados</span>
+                                    </h5>
+                                    <span className="badge bg-light text-muted border">
+                                        {partidosFiltrados.length} {partidosFiltrados.length === 1 ? 'partido' : 'partidos'}
+                                    </span>
+                                </div>
 
                                 <div className="row g-2">
-                                    <div className="col-12 col-md-6">
-                                        <input
-                                            className="form-control"
-                                            value={busqueda}
-                                            onChange={(e) => setBusqueda(e.target.value)}
-                                            placeholder="Buscar equipo o torneo..."
-                                            aria-label="Buscar equipo o torneo"
-                                        />
+                                    <div className="col-12 col-md-5">
+                                        <div className="input-group">
+                                            <span className="input-group-text bg-white border-end-0 text-muted">
+                                                <SearchIcon sx={{ fontSize: 20 }} />
+                                            </span>
+                                            <input
+                                                className="form-control border-start-0 ps-0"
+                                                value={busqueda}
+                                                onChange={(e) => setBusqueda(e.target.value)}
+                                                placeholder="Buscar equipo o torneo..."
+                                                aria-label="Buscar equipo o torneo"
+                                            />
+                                        </div>
                                     </div>
 
-                                    <div className="col-12 col-md-6">
-                                        <select
-                                            className="form-select"
-                                            value={filtroTorneo}
-                                            onChange={(e) => setFiltroTorneo(e.target.value)}
-                                            aria-label="Filtrar por torneo"
-                                        >
-                                            <option value="">Todos los torneos</option>
-                                            {torneos.map((torneo) => (
-                                                <option key={torneo.id} value={torneo.id}>
-                                                    {torneo.nombre}
-                                                </option>
-                                            ))}
-                                        </select>
+                                    <div className="col-12 col-md-4">
+                                        <div className="input-group">
+                                            <span className="input-group-text bg-white border-end-0 text-muted">
+                                                <EmojiEventsIcon sx={{ fontSize: 20 }} />
+                                            </span>
+                                            <select
+                                                className="form-select border-start-0 ps-0"
+                                                value={filtroTorneo}
+                                                onChange={(e) => setFiltroTorneo(e.target.value)}
+                                                aria-label="Filtrar por torneo"
+                                            >
+                                                <option value="">Todos los torneos</option>
+                                                {torneos.map((torneo) => (
+                                                    <option key={torneo.id} value={torneo.id}>
+                                                        {torneo.nombre}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
                                     </div>
 
-                                    <div className="col-12">
-                                        <select
-                                            className="form-select"
-                                            value={filtroEstado}
-                                            onChange={(e) => setFiltroEstado(e.target.value)}
-                                            aria-label="Filtrar por estado"
-                                        >
-                                            <option value="todos">Todos los estados</option>
-                                            <option value="1">Futuros</option>
-                                            <option value="2">En juego</option>
-                                            <option value="3">Finalizados</option>
-                                        </select>
+                                    <div className="col-12 col-md-3">
+                                        <div className="input-group">
+                                            <span className="input-group-text bg-white border-end-0 text-muted">
+                                                <FilterListIcon sx={{ fontSize: 20 }} />
+                                            </span>
+                                            <select
+                                                className="form-select border-start-0 ps-0"
+                                                value={filtroEstado}
+                                                onChange={(e) => setFiltroEstado(e.target.value)}
+                                                aria-label="Filtrar por estado"
+                                            >
+                                                <option value="todos">Todos</option>
+                                                <option value="1">Futuros</option>
+                                                <option value="2">En juego</option>
+                                                <option value="3">Finalizados</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -413,120 +519,153 @@ export default function CargaResultados() {
                                 {loading ? (
                                     <div className="text-center py-5">
                                         <div className="spinner-border text-primary" />
-                                        <p className="text-muted mt-3">Cargando partidos...</p>
+                                        <p className="text-muted mt-3 mb-0">Cargando partidos...</p>
                                     </div>
                                 ) : partidosFiltrados.length === 0 ? (
                                     <div className="text-center py-5 px-3">
-                                        <div className="display-5 mb-2">⚽</div>
-                                        <h6>No hay partidos para mostrar</h6>
-                                        <p className="text-muted mb-0">
-                                            Prueba otro filtro o programa un encuentro primero.
+                                        <div
+                                            className="rounded-circle d-inline-flex align-items-center justify-content-center bg-light text-muted mb-3"
+                                            style={{ width: 64, height: 64 }}
+                                        >
+                                            <SportsSoccerIcon sx={{ fontSize: 32 }} />
+                                        </div>
+                                        <h6 className="fw-bold">No hay partidos para mostrar</h6>
+                                        <p className="text-muted small mb-0">
+                                            Prueba otro filtro o programa un encuentro primero desde Gestión de Partidos.
                                         </p>
                                     </div>
                                 ) : (
                                     <div className="list-group list-group-flush">
-                                        {partidosFiltrados.map((partido) => (
-                                            <div
-                                                key={partido.id}
-                                                className="list-group-item p-3"
-                                            >
-                                                <div className="d-flex justify-content-between gap-3">
-                                                    <div className="flex-grow-1">
-                                                        <div className="small text-muted mb-2">
-                                                            {partido.torneos?.nombre || 'Sin torneo'}
-                                                            {' · '}
-                                                            {fechaLegible(partido.fecha_hora)}
-                                                        </div>
-
-                                                        <div className="d-flex align-items-center gap-2">
-                                                            <div className="flex-grow-1">
-                                                                <div className="d-flex align-items-center gap-2 mb-2">
-                                                                    <Escudo equipo={partido.local} />
-                                                                    <span className="fw-semibold">
-                                                                        {partido.local?.nombre || 'Equipo local'}
-                                                                    </span>
-                                                                </div>
-
-                                                                <div className="d-flex align-items-center gap-2">
-                                                                    <Escudo equipo={partido.visitante} />
-                                                                    <span className="fw-semibold">
-                                                                        {partido.visitante?.nombre || 'Equipo visitante'}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="text-center px-2">
-                                                                <div className="fs-4 fw-bold">
-                                                                    {partido.goles_local ?? '–'}
-                                                                    {' : '}
-                                                                    {partido.goles_visitante ?? '–'}
-                                                                </div>
-                                                                <span className={`badge ${claseEstado(partido.estado_id)}`}>
-                                                                    {nombreEstado(partido.estado_id)}
+                                        {partidosFiltrados.map((partido) => {
+                                            const isSelected = partido.id === partidoId;
+                                            return (
+                                                <div
+                                                    key={partido.id}
+                                                    className={`list-group-item p-3 transition-all ${
+                                                        isSelected ? 'bg-primary-subtle border-start border-primary border-4' : ''
+                                                    }`}
+                                                >
+                                                    <div className="d-flex justify-content-between align-items-center gap-3">
+                                                        <div className="flex-grow-1">
+                                                            <div className="small text-muted mb-2 d-flex align-items-center gap-1.5 flex-wrap">
+                                                                <span className="badge bg-light text-dark border">
+                                                                    {partido.torneos?.nombre || 'Sin torneo'}
+                                                                </span>
+                                                                <span className="text-muted d-inline-flex align-items-center gap-1">
+                                                                    <CalendarMonthIcon sx={{ fontSize: 15 }} />
+                                                                    {fechaLegible(partido.fecha_hora)}
                                                                 </span>
                                                             </div>
+
+                                                            <div className="d-flex align-items-center gap-2">
+                                                                <div className="flex-grow-1">
+                                                                    <div className="d-flex align-items-center gap-2 mb-2">
+                                                                        <Escudo equipo={partido.local} />
+                                                                        <span className="fw-semibold">
+                                                                            {partido.local?.nombre || 'Equipo local'}
+                                                                        </span>
+                                                                    </div>
+
+                                                                    <div className="d-flex align-items-center gap-2">
+                                                                        <Escudo equipo={partido.visitante} />
+                                                                        <span className="fw-semibold">
+                                                                            {partido.visitante?.nombre || 'Equipo visitante'}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="text-center px-3">
+                                                                    <div className="fs-3 fw-bold text-dark font-monospace">
+                                                                        {partido.goles_local ?? '–'}
+                                                                        {' : '}
+                                                                        {partido.goles_visitante ?? '–'}
+                                                                    </div>
+                                                                    <span className={`badge ${claseEstado(partido.estado_id)} px-2.5 py-1`}>
+                                                                        {partido.estado_id === 2 && (
+                                                                            <FiberManualRecordIcon sx={{ fontSize: 10, verticalAlign: 'middle', mr: 0.5 }} />
+                                                                        )}
+                                                                        {nombreEstado(partido.estado_id)}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="d-flex align-items-center">
+                                                            {partido.estado_id === 3 ? (
+                                                                <span className="badge bg-success-subtle text-success border border-success-subtle d-inline-flex align-items-center gap-1 px-2.5 py-1.5">
+                                                                    <CheckCircleIcon sx={{ fontSize: 16 }} />
+                                                                    <span>Cerrado</span>
+                                                                </span>
+                                                            ) : (
+                                                                <button
+                                                                    type="button"
+                                                                    className={`btn ${isSelected ? 'btn-primary' : 'btn-outline-primary'} btn-sm d-inline-flex align-items-center gap-1 px-3 py-1.5`}
+                                                                    onClick={() => seleccionarPartido(partido)}
+                                                                    style={{ borderRadius: '8px', fontWeight: 600 }}
+                                                                >
+                                                                    <EditIcon sx={{ fontSize: 16 }} />
+                                                                    <span>Cargar</span>
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     </div>
-
-                                                    <div className="d-flex align-items-center">
-                                                        {partido.estado_id === 3 ? (
-                                                            <span className="text-success small fw-semibold">
-                                                                Cerrado
-                                                            </span>
-                                                        ) : (
-                                                            <button
-                                                                type="button"
-                                                                className="btn btn-outline-primary btn-sm"
-                                                                onClick={() => seleccionarPartido(partido)}
-                                                            >
-                                                                Cargar
-                                                            </button>
-                                                        )}
-                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </div>
                         </div>
                     </div>
 
+                    {/* PANEL DE REGISTRO DE MARCADOR */}
                     <div className="col-12 col-xl-5" id="panel-registro-marcador">
-                        <div className="card border-0 shadow-sm">
-                            <div className="card-header bg-white p-4">
-                                <h5 className="fw-bold mb-1">Registrar marcador</h5>
+                        <div className="card border-0 shadow-sm" style={{ borderRadius: '16px' }}>
+                            <div className="card-header bg-white p-3.5 border-bottom">
+                                <h5 className="fw-bold mb-1 d-flex align-items-center gap-2">
+                                    <SportsScoreIcon sx={{ fontSize: 24, color: 'var(--tds-navy, #0f1e36)' }} />
+                                    <span>Registrar Marcador</span>
+                                </h5>
                                 <p className="text-muted small mb-0">
-                                    Selecciona un partido de la lista para cargar su resultado.
+                                    Selecciona un partido de la lista para actualizar su marcador o finalizarlo.
                                 </p>
                             </div>
 
                             <div className="card-body p-4">
                                 {!partidoSeleccionado ? (
                                     <div className="text-center py-5">
-                                        <div className="display-4 mb-3">📝</div>
-                                        <h6>Ningún partido seleccionado</h6>
-                                        <p className="text-muted">
-                                            Pulsa «Cargar» en un partido pendiente.
+                                        <div
+                                            className="rounded-circle d-inline-flex align-items-center justify-content-center bg-light text-muted mb-3"
+                                            style={{ width: 64, height: 64 }}
+                                        >
+                                            <SportsScoreIcon sx={{ fontSize: 32 }} />
+                                        </div>
+                                        <h6 className="fw-bold">Ningún partido seleccionado</h6>
+                                        <p className="text-muted small mb-0">
+                                            Pulsa «Cargar» en un partido de la lista para comenzar.
                                         </p>
                                     </div>
                                 ) : (
                                     <>
-                                        <div className="text-center mb-4">
-                                            <span className="badge bg-light text-dark border mb-2">
+                                        <div className="text-center mb-4 p-3 rounded-3 bg-light border">
+                                            <span className="badge bg-primary px-2.5 py-1 mb-1">
                                                 {partidoSeleccionado.torneos?.nombre || 'Sin torneo'}
                                             </span>
-                                            <div className="small text-muted">
-                                                {fechaLegible(partidoSeleccionado.fecha_hora)}
+                                            <div className="small text-muted d-flex align-items-center justify-content-center gap-1 mt-1">
+                                                <CalendarMonthIcon sx={{ fontSize: 16 }} />
+                                                <span>{fechaLegible(partidoSeleccionado.fecha_hora)}</span>
                                             </div>
                                         </div>
 
                                         <form onSubmit={guardarResultado}>
                                             {partidoSeleccionado.estado_id === 3 && (
-                                                <div className="alert alert-danger d-flex align-items-center gap-2 mb-3">
-                                                    <span className="fs-5">🔒</span>
-                                                    <div>
-                                                        <strong>Partido Finalizado:</strong> El marcador de este encuentro ya es definitivo. Los campos de edición y guardado se encuentran bloqueados.
+                                                <div
+                                                    className="alert alert-danger d-flex align-items-center gap-2 mb-3"
+                                                    style={{ borderRadius: '10px' }}
+                                                >
+                                                    <LockIcon sx={{ fontSize: 22 }} />
+                                                    <div className="small">
+                                                        <strong>Partido Finalizado:</strong> El marcador es definitivo y se encuentra bloqueado para modificaciones.
                                                     </div>
                                                 </div>
                                             )}
@@ -536,16 +675,17 @@ export default function CargaResultados() {
                                                     <div className="d-flex justify-content-center mb-2">
                                                         <Escudo equipo={partidoSeleccionado.local} />
                                                     </div>
-                                                    <div className="fw-semibold">
+                                                    <div className="fw-semibold text-truncate">
                                                         {partidoSeleccionado.local?.nombre || 'Local'}
                                                     </div>
-                                                    <div className="text-muted small">Local</div>
+                                                    <span className="badge bg-secondary-subtle text-secondary small">Local</span>
                                                     <input
                                                         type="number"
                                                         min="0"
                                                         step="1"
                                                         inputMode="numeric"
-                                                        className="form-control form-control-lg text-center mt-3 fw-bold"
+                                                        className="form-control form-control-lg text-center mt-3 fw-bold fs-2"
+                                                        style={{ borderRadius: '12px' }}
                                                         value={golesLocal}
                                                         onChange={(e) => setGolesLocal(e.target.value)}
                                                         aria-label="Goles del equipo local"
@@ -555,23 +695,24 @@ export default function CargaResultados() {
                                                 </div>
 
                                                 <div className="col-2 text-center">
-                                                    <div className="fw-bold fs-4">:</div>
+                                                    <div className="fw-bold fs-3 text-muted">:</div>
                                                 </div>
 
                                                 <div className="col-5 text-center">
                                                     <div className="d-flex justify-content-center mb-2">
                                                         <Escudo equipo={partidoSeleccionado.visitante} />
                                                     </div>
-                                                    <div className="fw-semibold">
+                                                    <div className="fw-semibold text-truncate">
                                                         {partidoSeleccionado.visitante?.nombre || 'Visitante'}
                                                     </div>
-                                                    <div className="text-muted small">Visitante</div>
+                                                    <span className="badge bg-secondary-subtle text-secondary small">Visitante</span>
                                                     <input
                                                         type="number"
                                                         min="0"
                                                         step="1"
                                                         inputMode="numeric"
-                                                        className="form-control form-control-lg text-center mt-3 fw-bold"
+                                                        className="form-control form-control-lg text-center mt-3 fw-bold fs-2"
+                                                        style={{ borderRadius: '12px' }}
                                                         value={golesVisitante}
                                                         onChange={(e) => setGolesVisitante(e.target.value)}
                                                         aria-label="Goles del equipo visitante"
@@ -587,46 +728,70 @@ export default function CargaResultados() {
                                                 </label>
                                                 <select
                                                     className="form-select"
+                                                    style={{ borderRadius: '10px' }}
                                                     value={nuevoEstado}
                                                     onChange={(e) => setNuevoEstado(e.target.value)}
                                                     required
                                                     disabled={guardando || partidoSeleccionado.estado_id === 3}
                                                 >
-                                                    <option value="2">EN JUEGO</option>
-                                                    <option value="3">FINALIZADO</option>
+                                                    <option value="2">EN JUEGO (Marcador en vivo)</option>
+                                                    <option value="3">FINALIZADO (Cierre definitivo)</option>
                                                 </select>
                                                 <div className="form-text">
-                                                    Usa «Finalizado» únicamente cuando el encuentro haya terminado.
+                                                    Usa «Finalizado» únicamente cuando el árbitro haya pitado el final del partido.
                                                 </div>
                                             </div>
 
                                             {nuevoEstado === '3' && partidoSeleccionado.estado_id !== 3 && (
-                                                <div className="alert alert-warning small">
-                                                    Al finalizar, el partido quedará cerrado para este módulo.
-                                                    Verifica que el marcador sea correcto antes de guardar.
+                                                <div
+                                                    className="alert alert-warning small d-flex align-items-center gap-2 mb-3"
+                                                    style={{ borderRadius: '10px' }}
+                                                >
+                                                    <LockIcon sx={{ fontSize: 20 }} />
+                                                    <div>
+                                                        Al finalizar, el partido quedará cerrado y no podrá editarse de nuevo.
+                                                    </div>
                                                 </div>
                                             )}
 
                                             <div className="d-grid gap-2">
                                                 <button
                                                     type="submit"
-                                                    className={`btn ${partidoSeleccionado.estado_id === 3 ? 'btn-secondary' : 'btn-primary'} btn-lg`}
+                                                    className={`btn ${
+                                                        partidoSeleccionado.estado_id === 3
+                                                            ? 'btn-secondary'
+                                                            : 'btn-primary'
+                                                    } btn-lg d-inline-flex align-items-center justify-content-center gap-2 shadow-sm`}
+                                                    style={{ borderRadius: '10px', fontWeight: 600 }}
                                                     disabled={guardando || partidoSeleccionado.estado_id === 3}
                                                 >
-                                                    {partidoSeleccionado.estado_id === 3
-                                                        ? 'Marcador Bloqueado (Finalizado)'
-                                                        : guardando
-                                                            ? 'Guardando...'
-                                                            : 'Guardar resultado'}
+                                                    {partidoSeleccionado.estado_id === 3 ? (
+                                                        <>
+                                                            <LockIcon sx={{ fontSize: 20 }} />
+                                                            <span>Marcador Bloqueado (Finalizado)</span>
+                                                        </>
+                                                    ) : guardando ? (
+                                                        <>
+                                                            <span className="spinner-border spinner-border-sm" />
+                                                            <span>Guardando...</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <SaveIcon sx={{ fontSize: 20 }} />
+                                                            <span>Guardar resultado</span>
+                                                        </>
+                                                    )}
                                                 </button>
 
                                                 <button
                                                     type="button"
-                                                    className="btn btn-outline-secondary"
+                                                    className="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center gap-2"
+                                                    style={{ borderRadius: '10px' }}
                                                     onClick={limpiarFormulario}
                                                     disabled={guardando}
                                                 >
-                                                    Cancelar
+                                                    <RestartAltIcon sx={{ fontSize: 18 }} />
+                                                    <span>Cancelar selección</span>
                                                 </button>
                                             </div>
                                         </form>
@@ -636,7 +801,8 @@ export default function CargaResultados() {
                         </div>
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
     );
 }
+

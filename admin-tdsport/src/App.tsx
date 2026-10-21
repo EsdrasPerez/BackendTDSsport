@@ -10,6 +10,7 @@ import Equipos from './pages/Equipos';
 import GestionPartidos from './pages/GestionPartidos';
 import CalendarioPartidos from './pages/CalendarioPartidos';
 import CargaResultados from './pages/CargaResultados';
+import Configuraciones from './pages/Configuraciones';
 
 export default function App() {
   return (
@@ -32,7 +33,7 @@ export default function App() {
           <Route path="/quinielas-activas" element={<div>Quinielas Activas (En construcción)</div>} />
           <Route path="/calendario-partidos" element={<CalendarioPartidos />} />
           <Route path="/carga-resultados" element={<CargaResultados />} />
-          <Route path="/configuraciones" element={<div>Configuraciones (En construcción)</div>} />
+          <Route path="/configuraciones" element={<Configuraciones />} />
           <Route path="/partidos" element={<GestionPartidos />} />
         </Route>
       </Routes>

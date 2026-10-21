@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import SecurityIcon from '@mui/icons-material/Security';
 import './LoginAdmin.css';
 
 export default function LoginAdmin() {
@@ -10,6 +11,17 @@ export default function LoginAdmin() {
   const [errorMessage, setErrorMessage] = useState('');
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const esPorInactividad = searchParams.get('inactividad') === '1';
+
+  // Si ya tiene sesión activa y no proviene de cierre por inactividad, redirigir al Dashboard
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session && !esPorInactividad) {
+        navigate('/dashboard', { replace: true });
+      }
+    });
+  }, [navigate, esPorInactividad]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,8 +51,8 @@ export default function LoginAdmin() {
         // 3. Regla de Negocio (US-1.2): Mensaje genérico por seguridad
         setErrorMessage('Error: Correo o contraseña incorrectos.');
       } else if (data.session) {
-        // Éxito: Navegar al Dashboard Administrativo
-        navigate('/torneos');
+        // Éxito: Navegar al Dashboard Principal
+        navigate('/dashboard');
       }
     } catch (err) {
       setErrorMessage('Error de conexión con el servidor. Inténtalo más tarde.');
@@ -69,6 +81,28 @@ export default function LoginAdmin() {
           <h1>TDSPORT <span>Admin</span></h1>
           <p>Acceso exclusivo para administradores</p>
         </div>
+
+        {/* Alerta de Inactividad Estilo Bancario */}
+        {esPorInactividad && (
+          <div
+            className="d-flex align-items-center gap-2 mb-3 text-start"
+            style={{
+              backgroundColor: 'rgba(255, 193, 7, 0.12)',
+              border: '1px solid rgba(255, 193, 7, 0.35)',
+              borderRadius: '10px',
+              padding: '12px 14px',
+              color: '#ffc107',
+              fontSize: '0.85rem',
+              lineHeight: 1.4,
+            }}
+            role="status"
+          >
+            <SecurityIcon sx={{ fontSize: 24, flexShrink: 0, color: '#ffc107' }} />
+            <div>
+              <strong>Sesión cerrada por inactividad:</strong> Para proteger la información del sistema, la sesión se cerró automáticamente tras un periodo sin actividad.
+            </div>
+          </div>
+        )}
 
         {/* Alerta de Error UI */}
         {errorMessage && (

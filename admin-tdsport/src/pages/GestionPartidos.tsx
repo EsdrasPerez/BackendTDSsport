@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 
 // MUI Icons
@@ -58,6 +59,8 @@ interface Partido {
 }
 
 export default function GestionPartidos() {
+    const [searchParams, setSearchParams] = useSearchParams();
+
     // ESTADOS
     const [torneos, setTorneos] = useState<Torneo[]>([]);
     const [equipos, setEquipos] = useState<Equipo[]>([]);
@@ -74,7 +77,7 @@ export default function GestionPartidos() {
     const [estadio, setEstadio] = useState('');
 
     const [busqueda, setBusqueda] = useState('');
-    const [filtroTorneo, setFiltroTorneo] = useState('');
+    const [filtroTorneo, setFiltroTorneo] = useState<string>(() => searchParams.get('torneo_id') || '');
     const [filtroJornada, setFiltroJornada] = useState<string>('');
 
     const [loading, setLoading] = useState(true);
@@ -84,6 +87,20 @@ export default function GestionPartidos() {
     const [partidoEliminar, setPartidoEliminar] = useState<Partido | null>(null);
     const [partidoAEditar, setPartidoAEditar] = useState<Partido | null>(null);
     const [mostrarModal, setMostrarModal] = useState(false);
+
+    // SINCRONIZAR FILTRO CUANDO CAMBIE LA URL
+    useEffect(() => {
+        const idFromUrl = searchParams.get('torneo_id');
+        if (idFromUrl !== null && idFromUrl !== undefined) {
+            setFiltroTorneo(idFromUrl);
+        }
+    }, [searchParams]);
+
+    // TORNEO ACTIVO SEGÚN EL FILTRO
+    const torneoActivo = useMemo(() => {
+        if (!filtroTorneo) return null;
+        return torneos.find((t) => String(t.id) === String(filtroTorneo));
+    }, [torneos, filtroTorneo]);
 
     // CARGA INICIAL
     useEffect(() => {
@@ -224,7 +241,8 @@ export default function GestionPartidos() {
 
     const abrirModalNuevo = () => {
         setPartidoAEditar(null);
-        setTorneoId('');
+        const torneoPreseleccionado = filtroTorneo || '';
+        setTorneoId(torneoPreseleccionado);
         setLocalId('');
         setVisitanteId('');
         setFechaHora('');
@@ -233,7 +251,11 @@ export default function GestionPartidos() {
         setGolesVisitante('');
         setJornada('');
         setEstadio('');
-        setEquipos([]);
+        if (torneoPreseleccionado) {
+            cargarEquiposDelTorneo(torneoPreseleccionado);
+        } else {
+            setEquipos([]);
+        }
         setMostrarModal(true);
     };
 
@@ -362,7 +384,7 @@ export default function GestionPartidos() {
                 localNombre.includes(texto) ||
                 visitanteNombre.includes(texto);
 
-            const coincideTorneo = !filtroTorneo || partido.torneo_id === filtroTorneo;
+            const coincideTorneo = !filtroTorneo || String(partido.torneo_id) === String(filtroTorneo);
             const coincideJornada = !filtroJornada || partido.jornada?.toString() === filtroJornada;
 
             return coincideBusqueda && coincideTorneo && coincideJornada;
@@ -447,9 +469,21 @@ export default function GestionPartidos() {
                                 <StadiumIcon sx={{ fontSize: 30, color: 'var(--tds-lime)' }} />
                             </div>
                             <div>
-                                <h2 className="fw-bold mb-1 text-white">Gestión de Partidos</h2>
+                                <div className="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                    <h2 className="fw-bold mb-0 text-white">Gestión de Partidos</h2>
+                                    {torneoActivo && (
+                                        <span
+                                            className="badge bg-white text-dark shadow-sm px-2.5 py-1.5"
+                                            style={{ borderRadius: '8px', fontSize: '0.85rem' }}
+                                        >
+                                            🏆 {torneoActivo.nombre}
+                                        </span>
+                                    )}
+                                </div>
                                 <p className="text-white-50 mb-0">
-                                    Programa, edita y administra los partidos de los torneos.
+                                    {torneoActivo
+                                        ? `Mostrando partidos del torneo "${torneoActivo.nombre}".`
+                                        : 'Programa, edita y administra los partidos de los torneos.'}
                                 </p>
                             </div>
                         </div>
@@ -499,7 +533,15 @@ export default function GestionPartidos() {
                                             <select
                                                 className="form-select border-start-0 ps-1"
                                                 value={filtroTorneo}
-                                                onChange={(e) => setFiltroTorneo(e.target.value)}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    setFiltroTorneo(val);
+                                                    if (val) {
+                                                        setSearchParams({ torneo_id: val });
+                                                    } else {
+                                                        setSearchParams({});
+                                                    }
+                                                }}
                                             >
                                                 <option value="">Todos los torneos</option>
                                                 {torneos.map((torneo) => (
@@ -529,6 +571,30 @@ export default function GestionPartidos() {
                                             </select>
                                         </div>
                                     </div>
+
+                                    {filtroTorneo && (
+                                        <div className="col-12 pt-1">
+                                            <div className="d-flex align-items-center gap-2 flex-wrap">
+                                                <span
+                                                    className="badge bg-primary-subtle text-primary border border-primary-subtle d-inline-flex align-items-center gap-1.5 px-3 py-2"
+                                                    style={{ borderRadius: '8px', fontSize: '0.82rem' }}
+                                                >
+                                                    <EmojiEventsIcon sx={{ fontSize: 16 }} />
+                                                    <span>Torneo seleccionado: <strong>{torneoActivo ? torneoActivo.nombre : filtroTorneo}</strong></span>
+                                                    <button
+                                                        type="button"
+                                                        className="btn-close ms-2"
+                                                        style={{ fontSize: '0.65rem' }}
+                                                        onClick={() => {
+                                                            setFiltroTorneo('');
+                                                            setSearchParams({});
+                                                        }}
+                                                        title="Mostrar todos los torneos"
+                                                    />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 

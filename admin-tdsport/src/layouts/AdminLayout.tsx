@@ -1,16 +1,16 @@
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import InactivityHandler from '../components/InactivityHandler';
 
 export default function AdminLayout() {
     return (
         <div className="d-flex min-vh-100 bg-light">
-            {/* Menú Lateral Fijo */}
             <Sidebar />
+            <InactivityHandler />
 
-            {/* Contenedor Principal Dinámico */}
             <main className="flex-grow-1 overflow-auto">
                 <Outlet />
             </main>
         </div>
     );
-}
+}

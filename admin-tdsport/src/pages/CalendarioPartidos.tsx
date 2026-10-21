@@ -448,7 +448,7 @@ export default function CalendarioPartidos() {
                     <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
                         <div>
                             <div className="d-flex align-items-center gap-2 mb-1">
-                                <CalendarMonthIcon className="text-white" style={{ fontSize: '2.1rem' }} />
+                                <CalendarMonthIcon sx={{ fontSize: 35, color: 'var(--tds-lime)' }} />
                                 <h2 className="fw-bold mb-0 text-white">Calendario de Partidos</h2>
                             </div>
                             <p className="text-white-50 mb-0">
