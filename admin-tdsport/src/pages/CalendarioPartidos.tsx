@@ -278,7 +278,6 @@ export default function CalendarioPartidos() {
     // HORA DEL PARTIDO
     const obtenerHora = (fecha: string) => {
         return new Date(fecha).toLocaleTimeString('es-GT', {
-            timeZone: 'UTC',
             hour: '2-digit',
             minute: '2-digit',
         });
@@ -288,7 +287,6 @@ export default function CalendarioPartidos() {
     const formatearFecha = (fecha: string) => {
         const date = new Date(fecha);
         return date.toLocaleDateString('es-GT', {
-            timeZone: 'UTC',
             weekday: 'long',
             year: 'numeric',
             month: 'long',
@@ -338,8 +336,8 @@ export default function CalendarioPartidos() {
         return partidosFiltrados.filter((p) => {
             const fecha = new Date(p.fecha_hora);
             return (
-                fecha.getUTCFullYear() === fechaActual.getFullYear() &&
-                fecha.getUTCMonth() === fechaActual.getMonth()
+                fecha.getFullYear() === fechaActual.getFullYear() &&
+                fecha.getMonth() === fechaActual.getMonth()
             );
         });
     }, [partidosFiltrados, fechaActual]);
@@ -366,9 +364,9 @@ export default function CalendarioPartidos() {
         return partidosFiltrados.filter((partido) => {
             const fecha = new Date(partido.fecha_hora);
             return (
-                fecha.getUTCFullYear() === fechaActual.getFullYear() &&
-                fecha.getUTCMonth() === fechaActual.getMonth() &&
-                fecha.getUTCDate() === dia
+                fecha.getFullYear() === fechaActual.getFullYear() &&
+                fecha.getMonth() === fechaActual.getMonth() &&
+                fecha.getDate() === dia
             );
         });
     };

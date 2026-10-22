@@ -43,7 +43,7 @@ interface Partido {
     torneo_id: string;
     local_id: string;
     visitante_id: string;
-    jornada: number | null;
+    jornada: string | number | null;
     estadio: string | null;
     torneos?: {
         nombre: string;
@@ -57,6 +57,108 @@ interface Partido {
         escudo_url: string | null;
     } | null;
 }
+
+export interface OpcionJornada {
+    valor: string;
+    etiqueta: string;
+}
+
+export interface GrupoJornadas {
+    categoria: string;
+    opciones: OpcionJornada[];
+}
+
+export const GRUPOS_JORNADAS: GrupoJornadas[] = [
+    {
+        categoria: 'Fases Finales / Eliminatorias',
+        opciones: [
+            { valor: 'Cuartos de Final (Ida)', etiqueta: 'Cuartos de Final (Ida)' },
+            { valor: 'Cuartos de Final (Vuelta)', etiqueta: 'Cuartos de Final (Vuelta)' },
+            { valor: 'Cuartos de Final', etiqueta: 'Cuartos de Final (Partido único)' },
+            { valor: 'Semifinal (Ida)', etiqueta: 'Semifinal (Ida)' },
+            { valor: 'Semifinal (Vuelta)', etiqueta: 'Semifinal (Vuelta)' },
+            { valor: 'Semifinal', etiqueta: 'Semifinal (Partido único)' },
+            { valor: 'Final (Ida)', etiqueta: 'Final (Ida)' },
+            { valor: 'Final (Vuelta)', etiqueta: 'Final (Vuelta)' },
+            { valor: 'Final', etiqueta: 'Final (Partido único)' },
+            { valor: 'Octavos de Final (Ida)', etiqueta: 'Octavos de Final (Ida)' },
+            { valor: 'Octavos de Final (Vuelta)', etiqueta: 'Octavos de Final (Vuelta)' },
+            { valor: 'Octavos de Final', etiqueta: 'Octavos de Final (Partido único)' },
+            { valor: 'Tercer Lugar', etiqueta: 'Tercer Lugar' },
+        ],
+    },
+    {
+        categoria: 'Jornadas Regulares',
+        opciones: Array.from({ length: 38 }, (_, i) => ({
+            valor: String(i + 1),
+            etiqueta: `Jornada ${i + 1}`,
+        })),
+    },
+];
+
+export const VALORES_JORNADAS_CONOCIDOS = new Set(
+    GRUPOS_JORNADAS.flatMap((g) => g.opciones.map((o) => o.valor))
+);
+
+export const formatearJornada = (val: string | number | null | undefined): string => {
+    if (val === null || val === undefined || val === '') return '-';
+    const str = String(val).trim();
+    if (/^\d+$/.test(str)) {
+        return `Jornada ${str}`;
+    }
+    return str;
+};
+
+export const getBadgeClassJornada = (jornada: string | number | null | undefined): string => {
+    if (!jornada) return 'bg-secondary text-white';
+    const str = String(jornada).toLowerCase();
+    if (str.includes('final') && !str.includes('semi') && !str.includes('cuarto') && !str.includes('octavo')) {
+        return 'bg-warning text-dark border border-warning shadow-sm';
+    }
+    if (str.includes('semi')) {
+        return 'bg-info text-dark border border-info shadow-sm';
+    }
+    if (str.includes('cuarto')) {
+        return 'bg-primary-subtle text-primary border border-primary-subtle';
+    }
+    if (str.includes('octavo')) {
+        return 'bg-secondary-subtle text-dark border border-secondary-subtle';
+    }
+    return 'bg-secondary text-white';
+};
+
+export const formatearFechaParaGuardar = (valorInput: string, offset: string = '-06:00'): string => {
+    if (!valorInput) return '';
+    let val = valorInput.trim();
+
+    if (val.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(val)) {
+        return val;
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(val)) {
+        val += ':00';
+    }
+    return `${val}${offset}`;
+};
+
+export const formatearFecha = (fecha: string | null | undefined): string => {
+    if (!fecha) return '-';
+    const date = new Date(fecha);
+    if (isNaN(date.getTime())) return String(fecha);
+    return date.toLocaleString('es-GT', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+    });
+};
+
+export const formatearFechaInput = (fecha: string | null | undefined): string => {
+    if (!fecha) return '';
+    const date = new Date(fecha);
+    if (isNaN(date.getTime())) return '';
+    const pad = (n: number) => n.toString().padStart(2, '0');
+
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+};
 
 export default function GestionPartidos() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -73,7 +175,7 @@ export default function GestionPartidos() {
     const [estadoId, setEstadoId] = useState<number>(1);
     const [golesLocal, setGolesLocal] = useState<number | ''>('');
     const [golesVisitante, setGolesVisitante] = useState<number | ''>('');
-    const [jornada, setJornada] = useState<number | ''>('');
+    const [jornada, setJornada] = useState<string>('');
     const [estadio, setEstadio] = useState('');
 
     const [busqueda, setBusqueda] = useState('');
@@ -268,7 +370,7 @@ export default function GestionPartidos() {
         setEstadoId(partido.estado_id);
         setGolesLocal(partido.goles_local !== null ? partido.goles_local : '');
         setGolesVisitante(partido.goles_visitante !== null ? partido.goles_visitante : '');
-        setJornada(partido.jornada !== null ? partido.jornada : '');
+        setJornada(partido.jornada !== null && partido.jornada !== undefined ? String(partido.jornada) : '');
         setEstadio(partido.estadio || '');
         await cargarEquiposDelTorneo(partido.torneo_id);
         setMostrarModal(true);
@@ -306,11 +408,11 @@ export default function GestionPartidos() {
             torneo_id: torneoId,
             local_id: localId,
             visitante_id: visitanteId,
-            fecha_hora: fechaHora,
+            fecha_hora: formatearFechaParaGuardar(fechaHora),
             estado_id: estadoId,
             goles_local: golesLocal === '' ? null : Number(golesLocal),
             goles_visitante: golesVisitante === '' ? null : Number(golesVisitante),
-            jornada: jornada === '' ? null : Number(jornada),
+            jornada: jornada ? String(jornada).trim() : null,
             estadio: estadio || null,
         };
 
@@ -434,21 +536,6 @@ export default function GestionPartidos() {
         }
     };
 
-    // FORMATEAR FECHA
-    const formatearFecha = (fecha: string) => {
-        const date = new Date(fecha);
-        const opcionesFecha: Intl.DateTimeFormatOptions = { timeZone: 'UTC', dateStyle: 'medium' };
-        const opcionesHora: Intl.DateTimeFormatOptions = { timeZone: 'UTC', timeStyle: 'short' };
-        return `${date.toLocaleDateString('es-GT', opcionesFecha)}, ${date.toLocaleTimeString('es-GT', opcionesHora)}`;
-    };
-
-    const formatearFechaInput = (fecha: string) => {
-        const date = new Date(fecha);
-        const pad = (n: number) => n.toString().padStart(2, '0');
-
-        return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}T${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`;
-    };
-
     // RENDER
     return (
         <div className="min-vh-100 bg-light">
@@ -562,12 +649,21 @@ export default function GestionPartidos() {
                                                 value={filtroJornada}
                                                 onChange={(e) => setFiltroJornada(e.target.value)}
                                             >
-                                                <option value="">Todas las jornadas</option>
-                                                {[...Array(38)].map((_, i) => (
-                                                    <option key={i + 1} value={i + 1}>
-                                                        Jornada {i + 1}
-                                                    </option>
+                                                <option value="">Todas las jornadas / fases</option>
+                                                {GRUPOS_JORNADAS.map((grupo) => (
+                                                    <optgroup key={grupo.categoria} label={grupo.categoria}>
+                                                        {grupo.opciones.map((op) => (
+                                                            <option key={op.valor} value={op.valor}>
+                                                                {op.etiqueta}
+                                                            </option>
+                                                        ))}
+                                                    </optgroup>
                                                 ))}
+                                                {filtroJornada && !VALORES_JORNADAS_CONOCIDOS.has(String(filtroJornada)) && (
+                                                    <option value={filtroJornada}>
+                                                        {formatearJornada(filtroJornada)}
+                                                    </option>
+                                                )}
                                             </select>
                                         </div>
                                     </div>
@@ -646,8 +742,8 @@ export default function GestionPartidos() {
                                                                 </span>
                                                             </td>
                                                             <td className="text-center align-middle">
-                                                                <span className="badge bg-secondary">
-                                                                    {partido.jornada ? `Jornada ${partido.jornada}` : '-'}
+                                                                <span className={`badge ${getBadgeClassJornada(partido.jornada)}`}>
+                                                                    {formatearJornada(partido.jornada)}
                                                                 </span>
                                                             </td>
                                                             <td className="text-center align-middle">
@@ -820,7 +916,7 @@ export default function GestionPartidos() {
                                         className="badge bg-white px-2.5 py-1 shadow-sm"
                                         style={{ color: '#000000', fontWeight: 700, fontSize: '0.8rem' }}
                                     >
-                                        Jornada {jornada}
+                                        {formatearJornada(jornada)}
                                     </span>
                                 ) : null}
                             </div>
@@ -930,20 +1026,29 @@ export default function GestionPartidos() {
                                     <div className="modal-consultation-field">
                                         <label className="modal-consultation-label">
                                             <TagIcon sx={{ fontSize: 16, color: '#3b82f6' }} />
-                                            <span>Jornada</span>
+                                            <span>Jornada / Fase</span>
                                         </label>
                                         <select
                                             className="modal-consultation-select"
                                             value={jornada}
-                                            onChange={(e) => setJornada(e.target.value === '' ? '' : Number(e.target.value))}
+                                            onChange={(e) => setJornada(e.target.value)}
                                             required
                                         >
-                                            <option value="">Seleccione la jornada</option>
-                                            {[...Array(38)].map((_, i) => (
-                                                <option key={i + 1} value={i + 1}>
-                                                    Jornada {i + 1}
-                                                </option>
+                                            <option value="">Seleccione la jornada o fase</option>
+                                            {GRUPOS_JORNADAS.map((grupo) => (
+                                                <optgroup key={grupo.categoria} label={grupo.categoria}>
+                                                    {grupo.opciones.map((op) => (
+                                                        <option key={op.valor} value={op.valor}>
+                                                            {op.etiqueta}
+                                                        </option>
+                                                    ))}
+                                                </optgroup>
                                             ))}
+                                            {jornada && !VALORES_JORNADAS_CONOCIDOS.has(String(jornada)) && (
+                                                <option value={jornada}>
+                                                    {formatearJornada(jornada)}
+                                                </option>
+                                            )}
                                         </select>
                                     </div>
 
