@@ -92,11 +92,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setSession(nuevaSesion);
         }
         setIsLoading(false);
+
       } else if (event === 'INITIAL_SESSION') {
         if (nuevaSesion && !verificarInactividadExpirada()) {
           setSession(nuevaSesion);
-        } else if (verificarInactividadExpirada()) {
-          void logout('inactividad');
+
+        } else {
+          setSession(null);
+          if (verificarInactividadExpirada()) {
+            void logout('inactividad');
+          }
         }
         setIsLoading(false);
       }
