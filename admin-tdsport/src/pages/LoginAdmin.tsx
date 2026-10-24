@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { limpiarCacheYSesion } from '../services/authService';
 import SecurityIcon from '@mui/icons-material/Security';
 import './LoginAdmin.css';
 
@@ -11,17 +13,23 @@ export default function LoginAdmin() {
   const [errorMessage, setErrorMessage] = useState('');
 
   const navigate = useNavigate();
+  const { session, recordActivity } = useAuth();
   const [searchParams] = useSearchParams();
   const esPorInactividad = searchParams.get('inactividad') === '1';
 
-  // Si ya tiene sesión activa y no proviene de cierre por inactividad, redirigir al Dashboard
+  // Si proviene de inactividad, forzar purga de almacenamiento residual
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session && !esPorInactividad) {
-        navigate('/dashboard', { replace: true });
-      }
-    });
-  }, [navigate, esPorInactividad]);
+    if (esPorInactividad) {
+      void limpiarCacheYSesion();
+    }
+  }, [esPorInactividad]);
+
+  // Si ya tiene sesión activa y no proviene de inactividad, redirigir al Dashboard
+  useEffect(() => {
+    if (session && !esPorInactividad) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [session, navigate, esPorInactividad]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,10 +59,11 @@ export default function LoginAdmin() {
         // 3. Regla de Negocio (US-1.2): Mensaje genérico por seguridad
         setErrorMessage('Error: Correo o contraseña incorrectos.');
       } else if (data.session) {
-        // Éxito: Navegar al Dashboard Principal
-        navigate('/dashboard');
+        // Éxito: Marcar actividad y navegar al Dashboard Principal
+        recordActivity();
+        navigate('/dashboard', { replace: true });
       }
-    } catch (err) {
+    } catch {
       setErrorMessage('Error de conexión con el servidor. Inténtalo más tarde.');
     } finally {
       setLoading(false);

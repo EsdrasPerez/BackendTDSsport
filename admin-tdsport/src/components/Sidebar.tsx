@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { supabase } from '../supabaseClient';
+import { useAuth } from '../context/AuthContext';
 
 // Material-UI Icons
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -20,6 +20,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 export default function Sidebar() {
+    const { logout } = useAuth();
     const [isCollapsed, setIsCollapsed] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
@@ -57,8 +58,11 @@ export default function Sidebar() {
     };
 
     const handleLogout = async () => {
-        await supabase.auth.signOut();
-        navigate('/login');
+        try {
+            await logout('manual');
+        } finally {
+            navigate('/login', { replace: true });
+        }
     };
 
     return (
